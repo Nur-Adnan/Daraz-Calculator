@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Daraz Fee Calculator</title>
+    <style>
+      /* Global styles */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Poppins", sans-serif;
+      }
+
+      body {
+        background-color: #f0f4f8;
+        color: #333;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      h1 {
+        font-size: 2rem;
+        color: #0056b3;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      form {
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        padding: 25px;
+        max-width: 450px;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      form label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #444;
+      }
+
+      form input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 1rem;
+      }
+
+      form input:focus {
+        outline: none;
+        border-color: #0056b3;
+        box-shadow: 0 0 5px rgba(0, 86, 179, 0.2);
+      }
+
+      button {
+        background-color: #0056b3;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 12px;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      button:hover {
+        background-color: #004494;
+      }
+
+      h2 {
+        margin-top: 30px;
+        font-size: 1.5rem;
+        color: #333;
+        text-align: center;
+      }
+
+      .results {
+        max-width: 450px;
+        width: 100%;
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        margin-top: 20px;
+        text-align: left;
+      }
+
+      .results p {
+        font-size: 1rem;
+        margin: 10px 0;
+        line-height: 1.5;
+      }
+
+      .results span {
+        font-weight: bold;
+        color: #0056b3;
+      }
+
+      @media (max-width: 480px) {
+        h1 {
+          font-size: 1.8rem;
+        }
+
+        form {
+          padding: 20px;
+        }
+
+        h2 {
+          font-size: 1.3rem;
+        }
+
+        .results {
+          padding: 15px;
+        }
+
+        .results p {
+          font-size: 0.95rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Daraz Fee Calculator</h1>
+    <form id="calculator-form">
+      <label for="sourcingPrice">Sourcing Price (BDT):</label>
+      <input type="number" id="sourcingPrice" value="300" required />
+
+      <label for="profit">Profit (BDT):</label>
+      <input type="number" id="profit" value="20" required />
+
+      <label for="packagingFee">Packaging Fee (BDT):</label>
+      <input type="number" id="packagingFee" value="5" required />
+
+      <label for="handlingFee">Handling Fee (BDT):</label>
+      <input type="number" id="handlingFee" value="5.24" required />
+
+      <label for="pickUpFee">Pick-Up Fee (BDT):</label>
+      <input type="number" id="pickUpFee" value="0" required />
+
+      <label for="commissionRate">Commission %:</label>
+      <input type="number" id="commissionRate" value="18.57" required />
+
+      <label for="transactionFeeRate">Transaction Fee %:</label>
+      <input type="number" id="transactionFeeRate" value="2.83" required />
+
+      <button type="button" onclick="calculate()">Calculate</button>
+    </form>
+
+    <h2>Results:</h2>
+    <div class="results">
+      <p>DP + Variable Cost: <span id="dpCost">0</span> BDT</p>
+      <p>
+        Final Selling Price (Exact): <span id="finalSellingPrice">0</span> BDT
+      </p>
+      <p>
+        Final Selling Price (Rounded):
+        <span id="roundedSellingPrice">0</span> BDT
+      </p>
+      <p>All Daraz Fees: <span id="darazFees">0</span> BDT</p>
+    </div>
+
+    <script>
+      function calculate() {
+        const sourcingPrice = parseFloat(
+          document.getElementById("sourcingPrice").value
+        );
+        const profit = parseFloat(document.getElementById("profit").value);
+        const packagingFee = parseFloat(
+          document.getElementById("packagingFee").value
+        );
+        const handlingFee = parseFloat(
+          document.getElementById("handlingFee").value
+        );
+        const pickUpFee = parseFloat(
+          document.getElementById("pickUpFee").value
+        );
+        const commissionRate = parseFloat(
+          document.getElementById("commissionRate").value
+        );
+        const transactionFeeRate = parseFloat(
+          document.getElementById("transactionFeeRate").value
+        );
+
+        const totalFee = packagingFee + handlingFee + pickUpFee;
+        const dpCost = sourcingPrice + profit + totalFee;
+        const totalDarazFee = sourcingPrice + profit;
+
+        let finalSellingPrice =
+          dpCost / (1 - commissionRate / 100 - transactionFeeRate / 100);
+
+        const commission = (commissionRate / 100) * finalSellingPrice;
+        const transactionFee = (transactionFeeRate / 100) * finalSellingPrice;
+        const totalDarazFees = Math.round(finalSellingPrice - totalDarazFee);
+
+        const roundedSellingPrice = Math.ceil(finalSellingPrice);
+
+        document.getElementById("dpCost").innerText = dpCost.toFixed(2);
+        document.getElementById("finalSellingPrice").innerText =
+          finalSellingPrice.toFixed(2);
+        document.getElementById("roundedSellingPrice").innerText =
+          roundedSellingPrice.toFixed(2);
+        document.getElementById("darazFees").innerText =
+          totalDarazFees.toFixed(2);
+      }
+    </script>
+  </body>
+</html>
